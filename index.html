@@ -1,151 +1,119 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NDB RAN – Nokia Site Map</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NDB RAN — Nokia Site Intelligence Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--bg:#f4f6f8;--panel:#fff;--text:#17202a;--muted:#667085;--border:#e4e7ec;--accent:#2563eb}
-*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-header{height:64px;background:#111827;color:#fff;display:flex;align-items:center;padding:0 18px;gap:14px;position:relative;z-index:5}
-.brand{font-weight:800;font-size:18px}.sub{font-size:12px;color:#cbd5e1}
-.controls{background:var(--panel);padding:12px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:minmax(260px,2fr) repeat(5,minmax(130px,1fr)) auto;gap:8px;position:relative;z-index:4}
-input,select,button{height:40px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;padding:0 11px;font:inherit}
-button{cursor:pointer;font-weight:650} button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button:hover{filter:brightness(.97)}
-.stats{display:flex;gap:10px;padding:10px 12px;background:var(--bg);flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px}.stat b{display:block;font-size:17px}.stat span{font-size:11px;color:var(--muted)}
-.main{height:calc(100vh - 64px - 114px);display:grid;grid-template-columns:390px 1fr;min-height:500px}
-.sidebar{background:#fff;border-right:1px solid var(--border);overflow:auto}.listhead{padding:12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
-.card{padding:12px;border-bottom:1px solid var(--border);cursor:pointer}.card:hover,.card.active{background:#eff6ff}.card strong{display:block;font-size:14px}.card small{display:block;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:999px;background:#eef2ff;font-size:10px}
-#map{width:100%;height:100%}
-.panel{position:absolute;right:18px;top:82px;width:340px;background:#fff;border-radius:12px;box-shadow:0 8px 30px #0002;z-index:3;display:none;overflow:hidden}
-.panel .pbody{padding:14px}.panel h3{margin:0 0 5px;font-size:17px}.kv{font-size:12px;margin:7px 0}.kv b{color:#475467}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.actions button{height:36px;font-size:12px}
-.close{position:absolute;right:9px;top:8px;border:0;background:#f2f4f7;width:30px;height:30px;padding:0}
-#loading{position:fixed;inset:0;background:#fff;z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
-@media(max-width:1050px){.controls{grid-template-columns:1fr 1fr 1fr}.controls input{grid-column:1/-1}.main{grid-template-columns:320px 1fr}}
-@media(max-width:700px){header{height:56px}.controls{grid-template-columns:1fr 1fr}.main{height:calc(100vh - 56px - 190px);grid-template-columns:1fr}.sidebar{height:42vh;border-right:0;border-bottom:1px solid var(--border)}#map{height:58vh}.panel{left:10px;right:10px;width:auto;top:auto;bottom:12px}.stats{padding:7px}.stat{padding:6px 9px}}
+:root{--bg:#eef2f6;--panel:#fff;--ink:#182230;--muted:#667085;--line:#dfe4ea;--blue:#2563eb;--soft:#eff6ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}
+header{height:62px;background:#101828;color:white;display:flex;align-items:center;padding:0 18px;gap:14px}.brand{font-size:18px;font-weight:800}.brand span{color:#60a5fa}.headright{margin-left:auto;font-size:12px;color:#cbd5e1}
+.toolbar{background:var(--panel);padding:10px;display:grid;grid-template-columns:2fr repeat(5,1fr) auto auto;gap:7px;border-bottom:1px solid var(--line)}
+input,select,button{height:38px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;padding:0 10px;font:inherit}button{cursor:pointer;font-weight:700}button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.stats{display:flex;gap:8px;padding:9px 10px;overflow:auto}.stat{min-width:130px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 11px}.stat b{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}
+.layout{height:calc(100vh - 62px - 111px);min-height:550px;display:grid;grid-template-columns:360px 1fr;position:relative}
+.side{background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column}.sidehead{padding:10px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}#list{overflow:auto}.item{padding:11px;border-bottom:1px solid var(--line);cursor:pointer}.item:hover{background:var(--soft)}.item strong{display:block;font-size:13px}.item small{display:block;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#map{height:100%;width:100%}.panel{position:absolute;right:16px;top:16px;width:370px;max-height:calc(100% - 32px);overflow:auto;background:#fff;box-shadow:0 12px 35px #0003;border-radius:12px;z-index:1000;display:none}.phead{padding:14px;border-bottom:1px solid var(--line)}.phead h3{margin:0 28px 2px 0;font-size:17px}.close{position:absolute;right:10px;top:10px;width:30px;height:30px;padding:0}.pbody{padding:12px}.kv{font-size:11px;padding:5px 0;border-bottom:1px dashed #edf0f3}.kv b{color:#475467}.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.actions button{font-size:11px;height:34px}.legend{position:absolute;left:10px;bottom:18px;z-index:900;background:#fff;padding:7px 9px;border-radius:8px;box-shadow:0 2px 12px #0002;font-size:10px}
+#loading{position:fixed;inset:0;background:#fff;z-index:5000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.notice{padding:8px 10px;font-size:11px;background:#fffbeb;border-bottom:1px solid #fde68a;color:#854d0e}
+@media(max-width:1000px){.toolbar{grid-template-columns:2fr 1fr 1fr 1fr}.toolbar input{grid-column:1/-1}.layout{grid-template-columns:300px 1fr}}
+@media(max-width:700px){header{height:54px}.headright{display:none}.toolbar{grid-template-columns:1fr 1fr}.layout{height:calc(100vh - 54px - 230px);grid-template-columns:1fr}.side{height:43%;border-right:0;border-bottom:1px solid var(--line)}#map{height:57%}.panel{left:8px;right:8px;width:auto;top:auto;bottom:8px;max-height:55%}.stats{padding:6px}.stat{min-width:100px}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3cF7M7gYfFfG2fYvYV6Gm5j8Y3F7Q=" crossorigin=""/>
-<style>.leaflet-popup-content{margin:10px}.leaflet-popup-content button{height:34px;font-size:12px;margin:3px}</style>
 </head>
 <body>
-<div id="loading"><b>Memuat database site…</b><span id="loadtxt">0%</span></div>
-<header><div class="brand">NDB RAN – Nokia Site Map</div><div class="sub">Site location & navigation</div></header>
-<div class="controls">
-<input id="search" placeholder="🔎 Cari Site ID, Site Name, alamat, area…">
-<select id="f1"><option value="">Semua</option></select>
-<select id="f2"><option value="">Semua</option></select>
-<select id="f3"><option value="">Semua</option></select>
-<select id="f4"><option value="">Semua</option></select>
-<select id="f5"><option value="">Semua</option></select>
-<button id="locate">📍 Lokasi saya</button>
-<button id="reset">Reset</button>
+<div id="loading"><b>Menyiapkan NDB RAN Map…</b><span id="progress">0%</span></div>
+<header><div class="brand">NDB RAN <span>— Nokia Site Intelligence Map</span></div><div class="headright">OpenStreetMap • Leaflet • No API Key</div></header>
+<div class="notice">🆓 Tanpa Google Maps API Key. Mode cepat memakai Canvas; maksimal 3.000 marker dirender sekaligus agar peta tetap ringan. Hasil pencarian tetap mencakup seluruh database.</div>
+<div class="toolbar">
+<input id="search" placeholder="🔎 Cari Site ID, Site Name, area, alamat, koordinat…">
+<select id="f1"><option value="">Filter 1</option></select><select id="f2"><option value="">Filter 2</option></select>
+<select id="f3"><option value="">Filter 3</option></select><select id="f4"><option value="">Filter 4</option></select>
+<select id="f5"><option value="">Filter 5</option></select>
+<button id="locate">📍 Saya</button><button id="reset">↺ Reset</button>
 </div>
 <div class="stats">
-<div class="stat"><b id="total">0</b><span>Total hasil</span></div>
-<div class="stat"><b id="shown">0</b><span>Marker aktif</span></div>
-<div class="stat"><b id="coords">0</b><span>Koordinat valid</span></div>
-<div class="stat"><b id="near">—</b><span>Site terdekat</span></div>
+<div class="stat"><b id="total">0</b><span>Hasil pencarian</span></div><div class="stat"><b id="coords">0</b><span>Koordinat valid</span></div>
+<div class="stat"><b id="displayed">0</b><span>Marker ditampilkan</span></div><div class="stat"><b id="near">—</b><span>Site terdekat</span></div>
 </div>
-<div class="main">
-<aside class="sidebar"><div class="listhead" id="listhead">Daftar lokasi</div><div id="list"></div></aside>
-<div id="map"></div>
+<div class="layout">
+<aside class="side"><div class="sidehead" id="sidehead">Daftar site</div><div id="list"></div></aside>
+<div id="map"></div><div class="legend">📍 Marker = site • 🔵 = lokasi Anda</div>
+<div class="panel" id="panel"><button class="close" id="close">×</button><div class="phead" id="phead"></div><div class="pbody" id="detail"></div></div>
 </div>
-<div class="panel" id="panel"><button class="close" id="close">×</button><div class="pbody" id="detail"></div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-let DATA=[], FILTERS=[], markers=[], map, userMarker=null, selected=null, markerLayer=null;
-const META_KEYS = {
-  lat: null, lon: "X_LONGITUDE", id: "SITE_ID", name: "SITE_NAME", filters: ["PROVINCE", "AREA_NAME_SUB_DISTRICT", "AREA", "BRANCH", "SITE_OWNERSHIP", "TOWER_OWNERSHIP", "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR", "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"]
-};
-const $=id=>document.getElementById(id);
-function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function num(v){let n=parseFloat(String(v??'').replace(',','.'));return Number.isFinite(n)?n:null}
-function valid(r){return num(r[META_KEYS.lat])!==null&&num(r[META_KEYS.lon])!==null}
-function label(r){return r[META_KEYS.name]||r[META_KEYS.id]||'Site'}
-function valueList(c){return [...new Set(DATA.map(r=>r[c]).filter(v=>v!==null&&String(v).trim()!=='' ).map(String))].sort()}
-function initFilters(){
-  FILTERS=META_KEYS.filters||[];
-  FILTERS.slice(0,5).forEach((c,i)=>{
-    const s=$('f'+(i+1)); s.innerHTML='<option value="">'+esc(c)+' — Semua</option>';
-    valueList(c).forEach(v=>s.insertAdjacentHTML('beforeend',`<option value="${esc(v)}">${esc(v)}</option>`));
-    s.onchange=apply;
-  });
-}
-function filtered(){
-  const q=$('search').value.trim().toLowerCase();
-  return DATA.filter(r=>{
-    if(q && !Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))) return false;
-    for(let i=0;i<5;i++){const c=FILTERS[i],v=$('f'+(i+1)).value;if(c&&v&&String(r[c]??'')!==v)return false}
-    return true;
-  });
-}
-function apply(){
-  const rows=filtered();
-  $('total').textContent=rows.length.toLocaleString('id-ID');
-  $('coords').textContent=rows.filter(valid).length.toLocaleString('id-ID');
-  renderList(rows.slice(0,300));
-  drawMarkers(rows);
-}
-function renderList(rows){
-  $('shown').textContent=Math.min(rows.length,1000).toLocaleString('id-ID');
-  $('listhead').textContent=`${rows.length.toLocaleString('id-ID')} hasil • klik site untuk detail`;
-  $('list').innerHTML=rows.map((r,i)=>`<div class="card"><strong>${esc(label(r))}</strong><small>${esc(r[META_KEYS.id]||'')}</small><small>${esc(r.PROVINCE||r.Province||r.AREA||r.Area||'')}</small></div>`).join('');
-  [...document.querySelectorAll('.card')].forEach((el,i)=>el.onclick=()=>select(rows[i]));
-}
-function popupHtml(r){
-  const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
-  return `<b>${esc(label(r))}</b><br><small>${esc(r[META_KEYS.id]||'')}</small><br><br>
-  <button onclick="openMaps()">🗺️ Google Maps</button>
-  <button onclick="route()">🧭 Rute</button>`;
-}
-function drawMarkers(rows){
-  if(markerLayer){map.removeLayer(markerLayer)}
-  markerLayer=L.layerGroup();
-  const usable=rows.filter(valid).slice(0,1000);
-  usable.forEach(r=>{
-    const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
-    const m=L.marker([lat,lng]).bindPopup(popupHtml(r));
+const META={lat:"Y_LATITUDE",lon:"X_LONGITUDE",id:"SITE_ID",name:"SITE_NAME",filters:["PROVINCE", "AREA_NAME_SUB_DISTRICT", "AREA", "BRANCH", "SITE_OWNERSHIP", "TOWER_OWNERSHIP", "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR", "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"]};
+let DATA=[],map,layer,selected,userMarker,debounce;
+const $=x=>document.getElementById(x);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const num=x=>{let n=parseFloat(String(x??'').replace(',','.'));return Number.isFinite(n)?n:null};
+const valid=r=>num(r[META.lat])!==null&&num(r[META.lon])!==null;
+const title=r=>r[META.name]||r[META.id]||'Site';
+function options(c){return [...new Set(DATA.map(r=>r[c]).filter(v=>v!==null&&String(v).trim()!=='').map(String))].sort()}
+function initFilters(){META.filters.slice(0,5).forEach((c,i)=>{let s=$('f'+(i+1));s.innerHTML='<option value="">'+esc(c)+' — Semua</option>';options(c).forEach(v=>s.insertAdjacentHTML('beforeend','<option value="'+esc(v)+'">'+esc(v)+'</option>'));s.onchange=apply})}
+function filtered(){let q=$('search').value.trim().toLowerCase();return DATA.filter(r=>{if(q&&!Object.values(r).some(v=>String(v??'').toLowerCase().includes(q)))return false;for(let i=0;i<5;i++){let c=META.filters[i],v=$('f'+(i+1)).value;if(c&&v&&String(r[c]??'')!==v)return false}return true})}
+function apply(){let rows=filtered();$('total').textContent=rows.length.toLocaleString('id-ID');$('coords').textContent=rows.filter(valid).length.toLocaleString('id-ID');renderList(rows);draw(rows)}
+function renderList(rows){let show=rows.slice(0,250);$('sidehead').textContent=rows.length.toLocaleString('id-ID')+' site • klik untuk detail';$('list').innerHTML=show.map((r,i)=>'<div class="item" data-i="'+i+'"><strong>'+esc(title(r))+'</strong><small>'+esc(r[META.id]||'')+'</small><small>'+esc(r.PROVINCE||r.AREA||r.AREA_NAME_SUB_DISTRICT||'')+'</small></div>').join('');document.querySelectorAll('.item').forEach((e,i)=>e.onclick=()=>select(show[i]))}
+const MAX_MARKERS=3000;
+const canvasRenderer=L.canvas({padding:0.5});
+function draw(rows){
+  if(layer)map.removeLayer(layer);
+  layer=L.layerGroup();
+  let use=rows.filter(valid);
+  // Rendering thousands of individual Leaflet DOM markers is slow.
+  // Use Canvas circle markers and cap the initial map draw.
+  if(use.length>MAX_MARKERS){
+    const c=map.getCenter();
+    use=[...use].sort((a,b)=>{
+      const da=Math.hypot(num(a[META.lat])-c.lat,(num(a[META.lon])-c.lng)*Math.cos(c.lat*Math.PI/180));
+      const db=Math.hypot(num(b[META.lat])-c.lat,(num(b[META.lon])-c.lng)*Math.cos(c.lat*Math.PI/180));
+      return da-db;
+    }).slice(0,MAX_MARKERS);
+  }
+  $('displayed').textContent=use.length.toLocaleString('id-ID')+(rows.filter(valid).length>MAX_MARKERS?' / '+rows.filter(valid).length.toLocaleString('id-ID')+' total':'');
+  use.forEach(r=>{
+    let m=L.circleMarker([num(r[META.lat]),num(r[META.lon)]),{
+      renderer:canvasRenderer,radius:5,weight:1,fillOpacity:.75
+    });
     m.on('click',()=>select(r));
-    markerLayer.addLayer(m);
+    layer.addLayer(m);
   });
-  markerLayer.addTo(map);
+  layer.addTo(map);
 }
-function select(r){
-  selected=r; const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
-  if(lat===null||lng===null)return;
-  map.setView([lat,lng],16);
-  const rows=Object.entries(r).filter(([k,v])=>v!==null&&String(v).trim()!=='').slice(0,18);
-  $('detail').innerHTML=`<h3>${esc(label(r))}</h3><div class="kv"><b>Koordinat:</b> ${lat}, ${lng}</div>`+
-    rows.map(([k,v])=>`<div class="kv"><b>${esc(k)}:</b> ${esc(v)}</div>`).join('')+
-    `<div class="actions"><button class="primary" onclick="openMaps()">🗺️ Google Maps</button><button onclick="route()">🧭 Rute</button><button onclick="share()">🔗 Bagikan</button></div>`;
-  $('panel').style.display='block';
-}
-function openMaps(){if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,'_blank')}
-function route(){if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,'_blank')}
-async function share(){
-  if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);
-  const u=`${location.origin}${location.pathname}?site=${encodeURIComponent(selected[META_KEYS.id]||label(selected))}&lat=${lat}&lng=${lng}`;
-  if(navigator.share) await navigator.share({title:label(selected),url:u}); else {await navigator.clipboard.writeText(u);alert('Link lokasi disalin.')}
-}
+function select(r){selected=r;let lat=num(r[META.lat]),lng=num(r[META.lon]);if(lat===null||lng===null)return;map.setView([lat,lng],16);let rows=Object.entries(r).filter(([k,v])=>v!==null&&String(v).trim()!=='');$('phead').innerHTML='<h3>'+esc(title(r))+'</h3><small>'+esc(r[META.id]||'')+'</small>';$('detail').innerHTML='<div class="kv"><b>KOORDINAT:</b> '+lat+', '+lng+'</div>'+rows.map(([k,v])=>'<div class="kv"><b>'+esc(k)+':</b> '+esc(v)+'</div>').join('')+'<div class="actions"><button class="primary" onclick="openMaps()">🗺️ Google Maps</button><button onclick="route()">🧭 Rute</button><button onclick="copyCoord()">📋 Koordinat</button><button onclick="share()">🔗 Bagikan</button></div>';$('panel').style.display='block'}
+function openMaps(){if(!selected)return;window.open('https://www.google.com/maps/search/?api=1&query='+num(selected[META.lat])+','+num(selected[META.lon]),'_blank')}
+function route(){if(!selected)return;window.open('https://www.google.com/maps/dir/?api=1&destination='+num(selected[META.lat])+','+num(selected[META.lon]),'_blank')}
+async function copyCoord(){if(!selected)return;await navigator.clipboard.writeText(num(selected[META.lat])+', '+num(selected[META.lon]));alert('Koordinat disalin.')}
+async function share(){if(!selected)return;let u=location.origin+location.pathname+'?site='+encodeURIComponent(selected[META.id]||title(selected));if(navigator.share)await navigator.share({title:title(selected),url:u});else{await navigator.clipboard.writeText(u);alert('Link site disalin.')}}
 $('close').onclick=()=>$('panel').style.display='none';
-$('search').oninput=()=>{clearTimeout(window.st);window.st=setTimeout(apply,120)};
-$('reset').onclick=()=>{ $('search').value='';for(let i=1;i<=5;i++)$('f'+i).value='';apply();map.setView([-2.5,118],5)};
-$('locate').onclick=()=>navigator.geolocation?.getCurrentPosition(pos=>{
-  const p=[pos.coords.latitude,pos.coords.longitude]; map.setView(p,13);
-  if(userMarker)map.removeLayer(userMarker);
-  userMarker=L.marker(p).addTo(map).bindPopup('📍 Lokasi saya').openPopup();
-  let best=null,bd=Infinity; DATA.filter(valid).forEach(r=>{const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);const d=Math.hypot((lat-p[0]),(lng-p[1])*Math.cos(p[0]*Math.PI/180));if(d<bd){bd=d;best=r}});
-  if(best){$('near').textContent=label(best);select(best)}
-},()=>alert('Lokasi tidak dapat diakses. Pastikan izin lokasi aktif.'));
-async function initMap(){
-  map=L.map('map',{preferCanvas:true}).setView([-2.5,118],5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-  const d=await fetch('data.json').then(r=>r.json()); DATA=d; initFilters(); apply();
-  const params=new URLSearchParams(location.search), sid=params.get('site');
-  if(sid){const r=DATA.find(x=>String(x[META_KEYS.id]??'')===sid);if(r)select(r)}
-  $('loading').style.display='none';
+$('search').oninput=()=>{clearTimeout(debounce);debounce=setTimeout(apply,120)};
+$('reset').onclick=()=>{$('search').value='';for(let i=1;i<=5;i++)$('f'+i).value='';$('near').textContent='—';apply();map.setView([-2.5,118],5)};
+$('locate').onclick=()=>navigator.geolocation?.getCurrentPosition(p=>{let here=[p.coords.latitude,p.coords.longitude];map.setView(here,13);if(userMarker)map.removeLayer(userMarker);userMarker=L.circleMarker(here,{radius:8,weight:3}).addTo(map).bindPopup('📍 Lokasi saya').openPopup();let best=null,bd=Infinity;DATA.filter(valid).forEach(r=>{let a=num(r[META.lat]),b=num(r[META.lon]);let d=Math.hypot(a-here[0],(b-here[1])*Math.cos(here[0]*Math.PI/180));if(d<bd){bd=d;best=r}});if(best){$('near').textContent=title(best);select(best)}},()=>alert('Izin lokasi ditolak/tidak tersedia.'));
+async function boot(){
+  $('progress').textContent='10%';
+  map=L.map('map',{preferCanvas:true,zoomControl:true}).setView([-2.5,118],5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,attribution:'© OpenStreetMap contributors'
+  }).addTo(map);
+  $('progress').textContent='25%';
+  let d=await fetch('data.json',{cache:'default'}).then(r=>r.json());
+  $('progress').textContent='75%';
+  DATA=d;
+  initFilters();
+  apply();
+  map.on('moveend',()=>{
+    // Repaint only when there are many results; this keeps zooming/panning responsive.
+    const rows=filtered();
+    if(rows.length>MAX_MARKERS) draw(rows);
+  });
+  let sid=new URLSearchParams(location.search).get('site');
+  if(sid){
+    let r=DATA.find(x=>String(x[META.id]??'')===sid);
+    if(r)select(r);
+  }
+  $('progress').textContent='100%';
+  setTimeout(()=>$('loading').style.display='none',120);
 }
-initMap();
+boot();
 </script>
-
 </body></html>

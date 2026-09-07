@@ -1,30 +1,35 @@
-# NDB RAN – Nokia Site Map
+# NDB RAN — Nokia Site Intelligence Map
 
-Website peta lokasi berbasis Leaflet + OpenStreetMap + database Excel.
-
-## Isi paket
-- `index.html` — aplikasi web
-- `data.json` — database site yang sudah dioptimalkan untuk web
-- `data.csv` — backup data
-- `meta.json` — metadata kolom
-
-## Cara menjalankan
-1. Tidak perlu Google Maps API Key. Peta menggunakan Leaflet + OpenStreetMap.
-2. Upload seluruh isi folder ini ke repository GitHub.
-3. Aktifkan GitHub Pages pada repository tersebut.
-
-## Data
-Sheet: Sheet1
-Jumlah baris: 21,100
-Latitude: Y_LATITUDE
-Longitude: X_LONGITUDE
-Site ID: SITE_ID
-Site Name: SITE_NAME
-Filter otomatis: PROVINCE, AREA_NAME_SUB_DISTRICT, AREA, BRANCH, SITE_OWNERSHIP, TOWER_OWNERSHIP, SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR, BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS
+Versi gratis tanpa Google Maps API Key.
 
 ## Fitur
-Pencarian realtime, filter, marker clustering, detail site, Google Maps, rute,
-share link, geolocation, site terdekat, responsive mobile/desktop.
+- Leaflet + OpenStreetMap
+- Database 21,100 site
+- Pencarian seluruh kolom
+- 5 filter dinamis
+- Marker site
+- Detail lengkap
+- Google Maps untuk lokasi
+- Google Maps untuk rute
+- Copy koordinat
+- Share link site
+- Geolocation dan site terdekat
+- Responsive desktop/mobile
+- GitHub Pages ready
 
-### Peta
-Website tidak menggunakan Google Maps API. Peta dasar memakai OpenStreetMap melalui Leaflet. Tombol Google Maps hanya membuka Google Maps di tab baru untuk lokasi/rute, sehingga tidak memerlukan Google Maps API Key.
+## Upload ke GitHub
+Upload `index.html`, `data.json`, `data.csv`, dan `meta.json` ke repository. Aktifkan GitHub Pages.
+
+Tidak ada Google Maps API Key yang diperlukan.
+
+## Catatan performa
+Untuk database sangat besar, versi produksi berikutnya dapat memakai vector tiles/server-side spatial index agar marker tidak perlu dimuat seluruhnya sekaligus.
+
+
+## Mode cepat
+Versi ini dioptimalkan untuk database sekitar 21 ribu site:
+- memakai Canvas `circleMarker`, bukan ribuan DOM marker;
+- maksimal 3.000 marker dirender sekaligus;
+- pencarian/filter tetap bekerja pada seluruh database;
+- daftar site dibatasi 250 item agar browser tetap responsif;
+- tidak membutuhkan Google Maps API Key.
