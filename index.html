@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NDB RAN — Nokia Site Intelligence Map</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{--bg:#eef2f6;--panel:#fff;--ink:#182230;--muted:#667085;--line:#dfe4ea;--blue:#2563eb;--soft:#eff6ff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}
@@ -40,7 +40,7 @@ input,select,button{height:38px;border:1px solid #d0d5dd;border-radius:8px;backg
 <div id="map"></div><div class="legend">📍 Marker = site • 🔵 = lokasi Anda</div>
 <div class="panel" id="panel"><button class="close" id="close">×</button><div class="phead" id="phead"></div><div class="pbody" id="detail"></div></div>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const META={lat:"Y_LATITUDE",lon:"X_LONGITUDE",id:"SITE_ID",name:"SITE_NAME",filters:["PROVINCE", "AREA_NAME_SUB_DISTRICT", "AREA", "BRANCH", "SITE_OWNERSHIP", "TOWER_OWNERSHIP", "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR", "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"]};
 let DATA=[],map,layer,selected,userMarker,debounce;
@@ -72,7 +72,7 @@ function draw(rows){
   }
   $('displayed').textContent=use.length.toLocaleString('id-ID')+(rows.filter(valid).length>MAX_MARKERS?' / '+rows.filter(valid).length.toLocaleString('id-ID')+' total':'');
   use.forEach(r=>{
-    let m=L.circleMarker([num(r[META.lat]),num(r[META.lon)]),{
+    let m=L.circleMarker([num(r[META.lat]),num(r[META.lon])],{
       renderer:canvasRenderer,radius:5,weight:1,fillOpacity:.75
     });
     m.on('click',()=>select(r));
