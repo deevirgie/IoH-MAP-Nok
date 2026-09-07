@@ -1,0 +1,37 @@
+{
+  "sheet": "Sheet1",
+  "rows": 21100,
+  "columns": [
+    "SITE_ID",
+    "SITE_NAME",
+    "AREA_NAME_SUB_DISTRICT",
+    "X_LONGITUDE",
+    "Y_LATITUDE",
+    "CITY_OR_DATI_II",
+    "AREA",
+    "BRANCH",
+    "PROVINCE",
+    "REGION",
+    "SITE_OWNERSHIP",
+    "TOWER_OWNERSHIP",
+    "COLOCATION_Y_OR_N",
+    "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR",
+    "HEIGHT_EXISTING_BUILDING_M",
+    "HEIGHT_TOWER_M",
+    "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"
+  ],
+  "lat": "Y_LATITUDE",
+  "lon": "X_LONGITUDE",
+  "site_id": "SITE_ID",
+  "site_name": "SITE_NAME",
+  "filters": [
+    "PROVINCE",
+    "AREA_NAME_SUB_DISTRICT",
+    "AREA",
+    "BRANCH",
+    "SITE_OWNERSHIP",
+    "TOWER_OWNERSHIP",
+    "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR",
+    "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"
+  ]
+}

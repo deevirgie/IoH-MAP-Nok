@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NDB RAN – Nokia Site Map</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--text:#17202a;--muted:#667085;--border:#e4e7ec;--accent:#2563eb}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{height:64px;background:#111827;color:#fff;display:flex;align-items:center;padding:0 18px;gap:14px;position:relative;z-index:5}
+.brand{font-weight:800;font-size:18px}.sub{font-size:12px;color:#cbd5e1}
+.controls{background:var(--panel);padding:12px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:minmax(260px,2fr) repeat(5,minmax(130px,1fr)) auto;gap:8px;position:relative;z-index:4}
+input,select,button{height:40px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;padding:0 11px;font:inherit}
+button{cursor:pointer;font-weight:650} button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:hover{filter:brightness(.97)}
+.stats{display:flex;gap:10px;padding:10px 12px;background:var(--bg);flex-wrap:wrap}.stat{background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px}.stat b{display:block;font-size:17px}.stat span{font-size:11px;color:var(--muted)}
+.main{height:calc(100vh - 64px - 114px);display:grid;grid-template-columns:390px 1fr;min-height:500px}
+.sidebar{background:#fff;border-right:1px solid var(--border);overflow:auto}.listhead{padding:12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
+.card{padding:12px;border-bottom:1px solid var(--border);cursor:pointer}.card:hover,.card.active{background:#eff6ff}.card strong{display:block;font-size:14px}.card small{display:block;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.badge{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:999px;background:#eef2ff;font-size:10px}
+#map{width:100%;height:100%}
+.panel{position:absolute;right:18px;top:82px;width:340px;background:#fff;border-radius:12px;box-shadow:0 8px 30px #0002;z-index:3;display:none;overflow:hidden}
+.panel .pbody{padding:14px}.panel h3{margin:0 0 5px;font-size:17px}.kv{font-size:12px;margin:7px 0}.kv b{color:#475467}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.actions button{height:36px;font-size:12px}
+.close{position:absolute;right:9px;top:8px;border:0;background:#f2f4f7;width:30px;height:30px;padding:0}
+#loading{position:fixed;inset:0;background:#fff;z-index:20;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+@media(max-width:1050px){.controls{grid-template-columns:1fr 1fr 1fr}.controls input{grid-column:1/-1}.main{grid-template-columns:320px 1fr}}
+@media(max-width:700px){header{height:56px}.controls{grid-template-columns:1fr 1fr}.main{height:calc(100vh - 56px - 190px);grid-template-columns:1fr}.sidebar{height:42vh;border-right:0;border-bottom:1px solid var(--border)}#map{height:58vh}.panel{left:10px;right:10px;width:auto;top:auto;bottom:12px}.stats{padding:7px}.stat{padding:6px 9px}}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3cF7M7gYfFfG2fYvYV6Gm5j8Y3F7Q=" crossorigin=""/>
+<style>.leaflet-popup-content{margin:10px}.leaflet-popup-content button{height:34px;font-size:12px;margin:3px}</style>
+</head>
+<body>
+<div id="loading"><b>Memuat database site…</b><span id="loadtxt">0%</span></div>
+<header><div class="brand">NDB RAN – Nokia Site Map</div><div class="sub">Site location & navigation</div></header>
+<div class="controls">
+<input id="search" placeholder="🔎 Cari Site ID, Site Name, alamat, area…">
+<select id="f1"><option value="">Semua</option></select>
+<select id="f2"><option value="">Semua</option></select>
+<select id="f3"><option value="">Semua</option></select>
+<select id="f4"><option value="">Semua</option></select>
+<select id="f5"><option value="">Semua</option></select>
+<button id="locate">📍 Lokasi saya</button>
+<button id="reset">Reset</button>
+</div>
+<div class="stats">
+<div class="stat"><b id="total">0</b><span>Total hasil</span></div>
+<div class="stat"><b id="shown">0</b><span>Marker aktif</span></div>
+<div class="stat"><b id="coords">0</b><span>Koordinat valid</span></div>
+<div class="stat"><b id="near">—</b><span>Site terdekat</span></div>
+</div>
+<div class="main">
+<aside class="sidebar"><div class="listhead" id="listhead">Daftar lokasi</div><div id="list"></div></aside>
+<div id="map"></div>
+</div>
+<div class="panel" id="panel"><button class="close" id="close">×</button><div class="pbody" id="detail"></div></div>
+<script>
+let DATA=[], FILTERS=[], markers=[], map, userMarker=null, selected=null, markerLayer=null;
+const META_KEYS = {
+  lat: null, lon: "X_LONGITUDE", id: "SITE_ID", name: "SITE_NAME", filters: ["PROVINCE", "AREA_NAME_SUB_DISTRICT", "AREA", "BRANCH", "SITE_OWNERSHIP", "TOWER_OWNERSHIP", "SITE_TYPE_GF_OR_RT_OR_MICROCELL_OR_INDOOR", "BTS_COVERAGE_TYPE_MACRO_OR_MICRO_OR_IBS"]
+};
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function num(v){let n=parseFloat(String(v??'').replace(',','.'));return Number.isFinite(n)?n:null}
+function valid(r){return num(r[META_KEYS.lat])!==null&&num(r[META_KEYS.lon])!==null}
+function label(r){return r[META_KEYS.name]||r[META_KEYS.id]||'Site'}
+function valueList(c){return [...new Set(DATA.map(r=>r[c]).filter(v=>v!==null&&String(v).trim()!=='' ).map(String))].sort()}
+function initFilters(){
+  FILTERS=META_KEYS.filters||[];
+  FILTERS.slice(0,5).forEach((c,i)=>{
+    const s=$('f'+(i+1)); s.innerHTML='<option value="">'+esc(c)+' — Semua</option>';
+    valueList(c).forEach(v=>s.insertAdjacentHTML('beforeend',`<option value="${esc(v)}">${esc(v)}</option>`));
+    s.onchange=apply;
+  });
+}
+function filtered(){
+  const q=$('search').value.trim().toLowerCase();
+  return DATA.filter(r=>{
+    if(q && !Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))) return false;
+    for(let i=0;i<5;i++){const c=FILTERS[i],v=$('f'+(i+1)).value;if(c&&v&&String(r[c]??'')!==v)return false}
+    return true;
+  });
+}
+function apply(){
+  const rows=filtered();
+  $('total').textContent=rows.length.toLocaleString('id-ID');
+  $('coords').textContent=rows.filter(valid).length.toLocaleString('id-ID');
+  renderList(rows.slice(0,300));
+  drawMarkers(rows);
+}
+function renderList(rows){
+  $('shown').textContent=Math.min(rows.length,1000).toLocaleString('id-ID');
+  $('listhead').textContent=`${rows.length.toLocaleString('id-ID')} hasil • klik site untuk detail`;
+  $('list').innerHTML=rows.map((r,i)=>`<div class="card"><strong>${esc(label(r))}</strong><small>${esc(r[META_KEYS.id]||'')}</small><small>${esc(r.PROVINCE||r.Province||r.AREA||r.Area||'')}</small></div>`).join('');
+  [...document.querySelectorAll('.card')].forEach((el,i)=>el.onclick=()=>select(rows[i]));
+}
+function popupHtml(r){
+  const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
+  return `<b>${esc(label(r))}</b><br><small>${esc(r[META_KEYS.id]||'')}</small><br><br>
+  <button onclick="openMaps()">🗺️ Google Maps</button>
+  <button onclick="route()">🧭 Rute</button>`;
+}
+function drawMarkers(rows){
+  if(markerLayer){map.removeLayer(markerLayer)}
+  markerLayer=L.layerGroup();
+  const usable=rows.filter(valid).slice(0,1000);
+  usable.forEach(r=>{
+    const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
+    const m=L.marker([lat,lng]).bindPopup(popupHtml(r));
+    m.on('click',()=>select(r));
+    markerLayer.addLayer(m);
+  });
+  markerLayer.addTo(map);
+}
+function select(r){
+  selected=r; const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);
+  if(lat===null||lng===null)return;
+  map.setView([lat,lng],16);
+  const rows=Object.entries(r).filter(([k,v])=>v!==null&&String(v).trim()!=='').slice(0,18);
+  $('detail').innerHTML=`<h3>${esc(label(r))}</h3><div class="kv"><b>Koordinat:</b> ${lat}, ${lng}</div>`+
+    rows.map(([k,v])=>`<div class="kv"><b>${esc(k)}:</b> ${esc(v)}</div>`).join('')+
+    `<div class="actions"><button class="primary" onclick="openMaps()">🗺️ Google Maps</button><button onclick="route()">🧭 Rute</button><button onclick="share()">🔗 Bagikan</button></div>`;
+  $('panel').style.display='block';
+}
+function openMaps(){if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,'_blank')}
+function route(){if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,'_blank')}
+async function share(){
+  if(!selected)return; const lat=num(selected[META_KEYS.lat]),lng=num(selected[META_KEYS.lon]);
+  const u=`${location.origin}${location.pathname}?site=${encodeURIComponent(selected[META_KEYS.id]||label(selected))}&lat=${lat}&lng=${lng}`;
+  if(navigator.share) await navigator.share({title:label(selected),url:u}); else {await navigator.clipboard.writeText(u);alert('Link lokasi disalin.')}
+}
+$('close').onclick=()=>$('panel').style.display='none';
+$('search').oninput=()=>{clearTimeout(window.st);window.st=setTimeout(apply,120)};
+$('reset').onclick=()=>{ $('search').value='';for(let i=1;i<=5;i++)$('f'+i).value='';apply();map.setView([-2.5,118],5)};
+$('locate').onclick=()=>navigator.geolocation?.getCurrentPosition(pos=>{
+  const p=[pos.coords.latitude,pos.coords.longitude]; map.setView(p,13);
+  if(userMarker)map.removeLayer(userMarker);
+  userMarker=L.marker(p).addTo(map).bindPopup('📍 Lokasi saya').openPopup();
+  let best=null,bd=Infinity; DATA.filter(valid).forEach(r=>{const lat=num(r[META_KEYS.lat]),lng=num(r[META_KEYS.lon]);const d=Math.hypot((lat-p[0]),(lng-p[1])*Math.cos(p[0]*Math.PI/180));if(d<bd){bd=d;best=r}});
+  if(best){$('near').textContent=label(best);select(best)}
+},()=>alert('Lokasi tidak dapat diakses. Pastikan izin lokasi aktif.'));
+async function initMap(){
+  map=L.map('map',{preferCanvas:true}).setView([-2.5,118],5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  const d=await fetch('data.json').then(r=>r.json()); DATA=d; initFilters(); apply();
+  const params=new URLSearchParams(location.search), sid=params.get('site');
+  if(sid){const r=DATA.find(x=>String(x[META_KEYS.id]??'')===sid);if(r)select(r)}
+  $('loading').style.display='none';
+}
+initMap();
+</script>
+
+</body></html>
