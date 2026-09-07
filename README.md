@@ -33,3 +33,7 @@ Versi ini dioptimalkan untuk database sekitar 21 ribu site:
 - pencarian/filter tetap bekerja pada seluruh database;
 - daftar site dibatasi 250 item agar browser tetap responsif;
 - tidak membutuhkan Google Maps API Key.
+
+
+## Tombol aksi di atas
+Pada panel detail site, tombol **Google Maps / Rute / Koordinat / Bagikan** sekarang berada tepat di bawah nama site dan tetap terlihat saat detail di-scroll. Ini dioptimalkan untuk penggunaan HP.
