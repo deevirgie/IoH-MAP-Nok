@@ -37,3 +37,12 @@ Versi ini dioptimalkan untuk database sekitar 21 ribu site:
 
 ## Tombol aksi di atas
 Pada panel detail site, tombol **Google Maps / Rute / Koordinat / Bagikan** sekarang berada tepat di bawah nama site dan tetap terlihat saat detail di-scroll. Ini dioptimalkan untuk penggunaan HP.
+
+
+## Filter dinamis
+Lima filter dinamis sekarang disembunyikan di balik tombol **⚙️ Filter** agar toolbar utama lebih ringkas, terutama di HP. Filter tetap mengambil 5 kolom dinamis pertama dari metadata:
+1. PROVINCE
+2. AREA_NAME_SUB_DISTRICT
+3. AREA
+4. BRANCH
+5. SITE_OWNERSHIP
